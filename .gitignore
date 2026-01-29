@@ -5,7 +5,7 @@ venv/
 env/
 .venv/
 
-# ML Virtual Environments - NEVER COMMIT THESE!
+# ML Virtual Environments - NEVER COMMIT!
 ml/venv-yolo/
 ml/venv-ocr/
 venv-yolo/
@@ -20,13 +20,16 @@ venv-ocr/
 .vscode/
 !.vscode/settings.json
 !.vscode/launch.json
+!.vscode/tasks.json
 
 # Database
 *.db
+*.sqlite
 backups/*.sql.gz
 
 # Logs
 *.log
+logs/
 
 # Testing
 .pytest_cache/
@@ -35,6 +38,7 @@ htmlcov/
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Large ML models
 ml/models/*.pt
