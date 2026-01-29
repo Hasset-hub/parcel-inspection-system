@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+env/
+.venv/
+
+# ML Virtual Environments - NEVER COMMIT THESE!
+ml/venv-yolo/
+ml/venv-ocr/
+venv-yolo/
+venv-ocr/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+!.vscode/settings.json
+!.vscode/launch.json
+
+# Database
+*.db
+backups/*.sql.gz
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+
+# Large ML models
+ml/models/*.pt
+ml/models/*.pth
+ml/models/*.onnx
+!ml/models/.gitkeep
