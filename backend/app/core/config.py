@@ -45,6 +45,16 @@ class Settings(BaseSettings):
     
     # CORS
     CORS_ORIGINS: str = "http://localhost:3000"
+
+    # Image Upload Settings
+    UPLOAD_DIR: str = "/tmp/parcel-images"
+    MAX_FILE_SIZE: int = 10485760  # 10MB
+    ALLOWED_EXTENSIONS: str = "jpg,jpeg,png,webp"
+    IMAGES_PER_INSPECTION: int = 6
+    
+    @property
+    def allowed_extensions_list(self) -> list[str]:
+        return self.ALLOWED_EXTENSIONS.split(',')
     
     @property
     def cors_origins_list(self) -> List[str]:
@@ -60,3 +70,5 @@ class Settings(BaseSettings):
 
 # Create singleton instance
 settings = Settings()
+
+    

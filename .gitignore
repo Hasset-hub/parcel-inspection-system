@@ -45,3 +45,9 @@ ml/models/*.pt
 ml/models/*.pth
 ml/models/*.onnx
 !ml/models/.gitkeep
+
+# ML Models - track directory but not large files
+ml/models/*.pt
+ml/models/*.pth
+ml/models/*.onnx
+!ml/models/.gitkeep

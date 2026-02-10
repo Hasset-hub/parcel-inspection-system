@@ -1,0 +1,18 @@
+                              Table "public.system_settings"
+       Column       |           Type           | Collation | Nullable |      Default      
+--------------------+--------------------------+-----------+----------+-------------------
+ setting_key        | character varying(100)   |           | not null | 
+ setting_value      | text                     |           | not null | 
+ setting_type       | character varying(50)    |           |          | 
+ description        | text                     |           |          | 
+ updated_by_user_id | uuid                     |           |          | 
+ updated_at         | timestamp with time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "system_settings_pkey" PRIMARY KEY, btree (setting_key)
+Check constraints:
+    "system_settings_setting_type_check" CHECK (setting_type::text = ANY (ARRAY['string'::character varying, 'integer'::character varying, 'decimal'::character varying, 'boolean'::character varying, 'json'::character varying]::text[]))
+Foreign-key constraints:
+    "system_settings_updated_by_user_id_fkey" FOREIGN KEY (updated_by_user_id) REFERENCES users(user_id)
+Triggers:
+    trigger_update_system_settings_updated_at BEFORE UPDATE ON system_settings FOR EACH ROW EXECUTE FUNCTION update_system_settings_updated_at()
+
