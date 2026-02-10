@@ -16,7 +16,7 @@ async def test_connection():
         # Test raw SQL
         result = await conn.execute(text("SELECT version();"))
         version = result.scalar()
-        logger.info(f"✅ PostgreSQL version: {version}")
+        logger.info(f" PostgreSQL version: {version}")
     
     logger.info("Testing async session...")
     
@@ -24,12 +24,12 @@ async def test_connection():
         # Test query
         result = await session.execute(select(User))
         users = result.scalars().all()
-        logger.info(f"✅ Found {len(users)} users in database")
+        logger.info(f" Found {len(users)} users in database")
         
         for user in users:
             logger.info(f"   - {user.username} ({user.role})")
     
-    logger.info("✅ All database tests passed!")
+    logger.info(" All database tests passed!")
 
 if __name__ == "__main__":
     asyncio.run(test_connection())
