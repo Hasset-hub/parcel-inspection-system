@@ -11,7 +11,7 @@ def fix_database():
     
     # Generate correct hash for Admin123!
     correct_hash = get_password_hash("Admin123!")
-    print(f"✅ Generated password hash")
+    print(f" Generated password hash")
     print(f"   Hash: {correct_hash[:50]}...")
     
     # Connect to database
@@ -22,7 +22,7 @@ def fix_database():
             user="parcel_admin",
             password="Parcel123!"  # The password you set
         )
-        print("✅ Connected to database")
+        print(" Connected to database")
         
         cur = conn.cursor()
         
@@ -37,7 +37,7 @@ def fix_database():
         """, (correct_hash,))
         
         conn.commit()
-        print("✅ Updated admin user")
+        print(" Updated admin user")
         
         # Verify the update
         cur.execute("""
@@ -50,7 +50,7 @@ def fix_database():
         result = cur.fetchone()
         if result:
             username, role, is_active, hash_preview = result
-            print("\n✅ Admin user verified:")
+            print("\n Admin user verified:")
             print(f"   Username: {username}")
             print(f"   Role: {role}")
             print(f"   Active: {is_active}")
@@ -61,26 +61,26 @@ def fix_database():
             stored_hash = cur.fetchone()[0]
             
             if verify_password("Admin123!", stored_hash):
-                print("\n✅ Password verification: PASSED")
+                print("\n Password verification: PASSED")
                 print("   Password 'Admin123!' matches the stored hash")
             else:
-                print("\n❌ Password verification: FAILED")
+                print("\n Password verification: FAILED")
                 print("   Something is still wrong")
         else:
-            print("❌ Admin user not found!")
+            print(" Admin user not found!")
         
         cur.close()
         conn.close()
         
         print("\n" + "="*50)
-        print("✅ DATABASE FIX COMPLETE!")
+        print(" DATABASE FIX COMPLETE!")
         print("="*50)
         print("\nYou can now test login with:")
         print('  username: admin')
         print('  password: Admin123!')
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return False
     
     return True
