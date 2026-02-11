@@ -75,15 +75,6 @@ async def api_info():
         ]
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host=settings.API_HOST,
-        port=settings.API_PORT,
-        reload=settings.API_RELOAD
-    )
-
 # Import routers
 from app.api.v1.auth import router as auth_router
 
@@ -101,3 +92,32 @@ from app.api.v1.ml import router as ml_router
 
 # Register ML router
 app.include_router(ml_router, prefix="/api/v1/ml", tags=["machine-learning"])
+
+# ML Router
+from app.api.v1.ml import router as ml_router
+app.include_router(ml_router, prefix="/api/v1/ml", tags=["machine-learning"])
+
+# Inspection Router
+from app.api.v1.inspections import router as inspections_router
+app.include_router(inspections_router, prefix="/api/v1/inspections", tags=["inspections"])
+
+# Auto-Resolution Router
+from app.api.v1.auto_resolution import router as auto_resolution_router
+app.include_router(auto_resolution_router, prefix="/api/v1/auto-resolution", tags=["auto-resolution"])
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "app.main:app",
+        host=settings.API_HOST,
+        port=settings.API_PORT,
+        reload=settings.API_RELOAD
+    )
+
+# Analytics Router
+from app.api.v1.analytics import router as analytics_router
+app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["analytics"])
+
+# OCR Router
+from app.api.v1.ocr import router as ocr_router
+app.include_router(ocr_router, prefix="/api/v1/ocr", tags=["ocr"])
