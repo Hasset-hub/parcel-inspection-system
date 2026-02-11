@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
-import { User } from '../../types';
+import type { User } from '../../types/index';
 
 const DashboardLayout = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -9,7 +9,7 @@ const DashboardLayout = () => {
 
   useEffect(() => {
     authService.getCurrentUser()
-      .then(setUser)
+      .then((u) => setUser(u as unknown as User)) // unsafe cast
       .catch(() => navigate('/login'));
   }, [navigate]);
 

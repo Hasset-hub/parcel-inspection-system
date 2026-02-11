@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
-import { DashboardStats } from '../types';
+import type { DashboardStats } from '../types/index';
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
