@@ -44,7 +44,8 @@ class Settings(BaseSettings):
     LOG_FILE: str = "../logs/app.log"
     
     # CORS
-    CORS_ORIGINS: str = "http://localhost:3000"
+    # include common dev origins (Vite default 5173 and CRA 3000)
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
 
     # Image Upload Settings
     UPLOAD_DIR: str = "/tmp/parcel-images"
