@@ -75,35 +75,45 @@ async def api_info():
         ]
     }
 
-# Import routers
+# ========================================
+# ROUTERS - All registered here
+# ========================================
+
+# Auth Router
 from app.api.v1.auth import router as auth_router
+app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 
-# Include routers
-app.include_router(auth_router, prefix="/api/v1")
-
-# Import images router
+# Images Router
 from app.api.v1.images import router as images_router
-
-# Register images router
 app.include_router(images_router, prefix="/api/v1/images", tags=["images"])
-
-# Import ML router
-from app.api.v1.ml import router as ml_router
-
-# Register ML router
-app.include_router(ml_router, prefix="/api/v1/ml", tags=["machine-learning"])
 
 # ML Router
 from app.api.v1.ml import router as ml_router
 app.include_router(ml_router, prefix="/api/v1/ml", tags=["machine-learning"])
 
-# Inspection Router
+# Inspections Router
 from app.api.v1.inspections import router as inspections_router
 app.include_router(inspections_router, prefix="/api/v1/inspections", tags=["inspections"])
 
 # Auto-Resolution Router
 from app.api.v1.auto_resolution import router as auto_resolution_router
 app.include_router(auto_resolution_router, prefix="/api/v1/auto-resolution", tags=["auto-resolution"])
+
+# Analytics Router
+from app.api.v1.analytics import router as analytics_router
+app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["analytics"])
+
+# OCR Router
+from app.api.v1.ocr import router as ocr_router
+app.include_router(ocr_router, prefix="/api/v1/ocr", tags=["ocr"])
+
+# Claims Router
+from app.api.v1.claims import router as claims_router
+app.include_router(claims_router, prefix="/api/v1/claims", tags=["claims"])
+
+# ========================================
+# MAIN - For direct execution
+# ========================================
 
 if __name__ == "__main__":
     import uvicorn
@@ -113,11 +123,3 @@ if __name__ == "__main__":
         port=settings.API_PORT,
         reload=settings.API_RELOAD
     )
-
-# Analytics Router
-from app.api.v1.analytics import router as analytics_router
-app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["analytics"])
-
-# OCR Router
-from app.api.v1.ocr import router as ocr_router
-app.include_router(ocr_router, prefix="/api/v1/ocr", tags=["ocr"])
