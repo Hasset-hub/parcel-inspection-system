@@ -104,3 +104,88 @@ class AnalyticsService:
             'auto_resolution_rate': round(auto_resolution_rate, 2),
             'generated_at': datetime.utcnow()
         }
+
+    @staticmethod
+    async def get_damage_trends(
+        db: AsyncSession,
+        days: int = 30
+    ) -> List[Dict]:
+        """Get damage counts grouped by day"""
+        since_date = datetime.utcnow() - timedelta(days=days)
+
+        result = await db.execute(
+            select(
+                func.date(Inspection.completed_at).label('date'),
+                func.count(Inspection.inspection_id).label('count')
+            )
+            .where(Inspection.completed_at >= since_date)
+            .group_by(func.date(Inspection.completed_at))
+            .order_by(func.date(Inspection.completed_at))
+        )
+        rows = result.all()
+
+        # Fill in missing days with 0
+        date_map = {str(row.date): row.count for row in rows}
+        trend_data = []
+        for i in range(days):
+            day = (datetime.utcnow() - timedelta(days=days - i)).strftime('%Y-%m-%d')
+            trend_data.append({
+                'date': day,
+                'count': date_map.get(day, 0),
+                'severity_avg': 0.0
+            })
+
+        return trend_data
+
+    @staticmethod
+    async def get_damage_by_type(
+        db: AsyncSession
+    ) -> List[Dict]:
+        """Get damage counts grouped by type"""
+        from app.models.damage_detection import DamageDetection
+
+        result = await db.execute(
+            select(
+                DamageDetection.damage_type,
+                func.count(DamageDetection.detection_id).label('count')
+            )
+            .group_by(DamageDetection.damage_type)
+            .order_by(func.count(DamageDetection.detection_id).desc())
+        )
+        rows = result.all()
+
+        total = sum(row.count for row in rows) or 1
+
+        return [
+            {
+                'damage_type': row.damage_type or 'unknown',
+                'count': row.count,
+                'percentage': round(row.count / total * 100, 1)
+            }
+            for row in rows
+        ]
+
+    @staticmethod
+    async def get_supplier_performance(
+        db: AsyncSession,
+        limit: int = 10
+    ) -> List[Dict]:
+        """Get top suppliers by damage rate"""
+        result = await db.execute(
+            select(Supplier)
+            .where(Supplier.is_active == True)
+            .order_by(Supplier.damage_rate.desc())
+            .limit(limit)
+        )
+        suppliers = result.scalars().all()
+
+        return [
+            {
+                'supplier_name': s.name,
+                'supplier_code': s.supplier_code,
+                'total_parcels': s.total_shipments or 0,
+                'damaged_parcels': s.total_damaged_parcels or 0,
+                'damage_rate': float(s.damage_rate or 0)
+            }
+            for s in suppliers
+        ]

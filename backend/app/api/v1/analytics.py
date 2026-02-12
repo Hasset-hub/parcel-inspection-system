@@ -38,3 +38,29 @@ async def get_supplier_scorecard(
         days=days
     )
     return scorecard
+
+
+@router.get("/damage-trends")
+async def get_damage_trends(
+    days: int = 30,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get damage trends over time"""
+    return await AnalyticsService.get_damage_trends(db=db, days=days)
+
+
+@router.get("/damage-by-type")
+async def get_damage_by_type(
+    db: AsyncSession = Depends(get_db)
+):
+    """Get damage distribution by type"""
+    return await AnalyticsService.get_damage_by_type(db=db)
+
+
+@router.get("/supplier-performance")
+async def get_supplier_performance(
+    limit: int = 10,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get supplier performance rankings"""
+    return await AnalyticsService.get_supplier_performance(db=db, limit=limit)

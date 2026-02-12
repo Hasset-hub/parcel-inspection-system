@@ -17,6 +17,7 @@ const DashboardLayout = () => {
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Inspections', href: '/inspections', icon: '🔍' },
     { name: 'Parcels', href: '/parcels', icon: '📦' },
+    { name: 'Analytics', href: '/analytics', icon: '📈' },
   ];
 
   return (

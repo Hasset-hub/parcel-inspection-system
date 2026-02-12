@@ -1,42 +1,26 @@
-"""Supplier model"""
-from sqlalchemy import Column, String, UUID, Float, Integer, DateTime, Text, Boolean
-from sqlalchemy.dialects.postgresql import JSONB
-from datetime import datetime
+from sqlalchemy import Column, String, Boolean, Numeric, Integer, Date, Text
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 import uuid
 from app.db.session import Base
 
 class Supplier(Base):
     __tablename__ = "suppliers"
-    
-    supplier_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    supplier_code = Column(String(50), unique=True, nullable=False, index=True)
-    name = Column(String(200), nullable=False)
-    
-    # Contact
-    contact_email = Column(String(200))
-    contact_phone = Column(String(50))
-    address = Column(Text)
-    
-    # Performance metrics
-    damage_rate = Column(Float, default=0.0)
-    total_parcels_received = Column(Integer, default=0)
-    damaged_parcels_count = Column(Integer, default=0)
-    
-    # SLA metrics
-    on_time_delivery_rate = Column(Float, default=1.0)
-    late_deliveries = Column(Integer, default=0)
-    
-    # Ratings
-    quality_rating = Column(Float, default=5.0)  # 1-5 scale
-    
-    # Status
-    is_active = Column(Boolean, default=True)
-    
-    # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<Supplier {self.supplier_code}: {self.name}>"
 
-from sqlalchemy import Boolean
+    supplier_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    supplier_code = Column(String(50), unique=True, nullable=False)
+    name = Column(String(200), nullable=False)
+    contact_name = Column(String(200))
+    email = Column(String(255))
+    phone = Column(String(20))
+    address = Column(Text)
+    country = Column(String(100))
+    total_shipments = Column(Integer, default=0)
+    total_damaged_parcels = Column(Integer, default=0)
+    damage_rate = Column(Numeric(5, 4), default=0.0)
+    avg_packaging_quality_score = Column(Numeric(3, 2))
+    contract_start_date = Column(Date)
+    contract_end_date = Column(Date)
+    sla_delivery_time_hours = Column(Integer)
+    sla_damage_threshold = Column(Numeric(5, 4))
+    is_active = Column(Boolean, default=True)
