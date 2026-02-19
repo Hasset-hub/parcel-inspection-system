@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import parcelService, { Parcel } from '../services/parcelService';
-import { Search, Filter, Package, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
+import { Search, Package, AlertTriangle, CheckCircle, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Parcels: React.FC = () => {
   const navigate = useNavigate();
+  const { showError } = useToast();
+  
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -26,8 +31,8 @@ const Parcels: React.FC = () => {
 
       const data = await parcelService.getParcels(filters);
       setParcels(data.parcels || []);
-    } catch (error) {
-      console.error('Failed to load parcels:', error);
+    } catch (error: any) {
+      showError('Failed to load parcels: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -68,6 +73,10 @@ const Parcels: React.FC = () => {
     return <AlertTriangle className="w-5 h-5 text-amber-600" />;
   };
 
+  if (loading) {
+    return <LoadingSpinner fullScreen text="Loading parcels..." />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -78,8 +87,9 @@ const Parcels: React.FC = () => {
         </div>
         <button
           onClick={() => navigate('/inspections/new')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
+          <Plus className="w-4 h-4" />
           New Inspection
         </button>
       </div>
@@ -95,7 +105,7 @@ const Parcels: React.FC = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by tracking number..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -109,10 +119,12 @@ const Parcels: React.FC = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Status</option>
-            <option value="pending">Pending</option>
+            <option value="received">Received</option>
+            <option value="inspecting">Inspecting</option>
             <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="in_transit">In Transit</option>
+            <option value="damaged">Damaged</option>
+            <option value="quarantine">Quarantine</option>
+            <option value="stored">Stored</option>
           </select>
 
           <select
@@ -134,22 +146,28 @@ const Parcels: React.FC = () => {
             {selectedParcels.size} parcel(s) selected
           </span>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
               Approve Selected
             </button>
-            <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
               Reject Selected
             </button>
           </div>
         </div>
       )}
 
-      {/* Parcels Table */}
+      {/* Parcels Table or Empty State */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading parcels...</div>
-        ) : parcels.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No parcels found</div>
+        {parcels.length === 0 ? (
+          <EmptyState
+            icon={Package}
+            title="No parcels found"
+            description="There are no parcels matching your current filters. Try adjusting your search criteria or create a new inspection."
+            action={{
+              label: "New Inspection",
+              onClick: () => navigate('/inspections/new')
+            }}
+          />
         ) : (
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
@@ -167,7 +185,7 @@ const Parcels: React.FC = () => {
             </thead>
             <tbody className="divide-y">
               {parcels.map((parcel) => (
-                <tr key={parcel.parcel_id} className="hover:bg-gray-50">
+                <tr key={parcel.parcel_id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
@@ -183,14 +201,14 @@ const Parcels: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 font-mono text-sm">{parcel.tracking_number}</td>
                   <td className="px-6 py-4">{getSeverityIcon(parcel)}</td>
-                  <td className="px-6 py-4 text-sm">{parcel.damage_severity || 'N/A'}</td>
+                  <td className="px-6 py-4 text-sm capitalize">{parcel.damage_severity || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {new Date(parcel.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
                     <button
                       onClick={() => navigate(`/parcels/${parcel.parcel_id}`)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline"
                     >
                       View Details
                     </button>

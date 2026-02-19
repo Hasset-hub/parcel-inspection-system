@@ -8,6 +8,7 @@ import Analytics from './pages/Analytics';
 import Parcels from './pages/Parcels';
 import ParcelDetail from './pages/ParcelDetail';
 import authService from './services/authService';
+import { ToastProvider } from './contexts/ToastContext';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (!authService.isAuthenticated()) {
@@ -18,28 +19,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="inspections" element={<Inspections />} />
-          <Route path="inspections/new" element={<NewInspection />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="parcels" element={<Parcels />} />
-          <Route path="parcels/:parcelId" element={<ParcelDetail />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="inspections" element={<Inspections />} />
+            <Route path="inspections/new" element={<NewInspection />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="parcels" element={<Parcels />} />
+            <Route path="parcels/:parcelId" element={<ParcelDetail />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 

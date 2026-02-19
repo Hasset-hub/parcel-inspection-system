@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import parcelService, { ParcelDetail } from '../services/parcelService';
+import { useToast } from '../contexts/ToastContext';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { 
   Package, 
   AlertTriangle, 
@@ -8,17 +10,16 @@ import {
   Calendar,
   MapPin,
   Weight,
-  Ruler,
-  FileText,
   ArrowLeft
 } from 'lucide-react';
 
 const ParcelDetailPage: React.FC = () => {
   const { parcelId } = useParams<{ parcelId: string }>();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
+  
   const [parcel, setParcel] = useState<ParcelDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
@@ -34,21 +35,23 @@ const ParcelDetailPage: React.FC = () => {
       const data = await parcelService.getParcelById(parcelId);
       setParcel(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load parcel');
+      showError(err.message || 'Failed to load parcel');
+      setTimeout(() => navigate('/parcels'), 2000);
     } finally {
       setLoading(false);
     }
   };
 
   const handleStatusUpdate = async (newStatus: string) => {
-    if (!parcelId || !window.confirm(`Change status to ${newStatus}?`)) return;
+    if (!parcelId) return;
     
     setUpdatingStatus(true);
     try {
       await parcelService.updateParcelStatus(parcelId, newStatus);
+      showSuccess(`Status updated to ${newStatus}`);
       await loadParcel();
     } catch (err: any) {
-      alert('Failed to update status: ' + err.message);
+      showError('Failed to update status: ' + err.message);
     } finally {
       setUpdatingStatus(false);
     }
@@ -68,18 +71,14 @@ const ParcelDetailPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading parcel details...</div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen text="Loading parcel details..." />;
   }
 
-  if (error || !parcel) {
+  if (!parcel) {
     return (
       <div className="p-6">
         <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-          {error || 'Parcel not found'}
+          Parcel not found
         </div>
       </div>
     );
@@ -197,7 +196,15 @@ const ParcelDetailPage: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Inspection History</h2>
             {!parcel.inspections || parcel.inspections.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No inspections recorded</p>
+              <div className="text-center py-8">
+                <p className="text-gray-500">No inspections recorded yet</p>
+                <button
+                  onClick={() => navigate(`/inspections/new?parcel=${parcelId}`)}
+                  className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  Create First Inspection
+                </button>
+              </div>
             ) : (
               <div className="space-y-3">
                 {parcel.inspections.map((inspection) => (
@@ -239,9 +246,9 @@ const ParcelDetailPage: React.FC = () => {
               <button
                 onClick={() => handleStatusUpdate('approved')}
                 disabled={updatingStatus || parcel.status === 'approved'}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
-                Approve Parcel
+                {updatingStatus ? <LoadingSpinner size="sm" /> : 'Approve Parcel'}
               </button>
               <button
                 onClick={() => handleStatusUpdate('quarantine')}
