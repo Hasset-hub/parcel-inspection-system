@@ -1,10 +1,12 @@
 """Parcel model"""
-from sqlalchemy import Column, String, UUID, ForeignKey, DateTime, Boolean, Float, Text, Integer
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, String, ForeignKey, Boolean, Numeric, ARRAY, Text
+from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
+
 from app.db.session import Base
+
 
 class Parcel(Base):
     __tablename__ = "parcels"
@@ -15,37 +17,45 @@ class Parcel(Base):
     # Foreign keys
     shipment_id = Column(UUID(as_uuid=True), ForeignKey('shipments.shipment_id'))
     sku_id = Column(UUID(as_uuid=True), ForeignKey('skus.sku_id'))
+    packaging_type_id = Column(UUID(as_uuid=True), ForeignKey('packaging_types.packaging_type_id'))
     current_warehouse_id = Column(UUID(as_uuid=True), ForeignKey('warehouses.warehouse_id'))
     
-    # Status and dimensions
-    status = Column(String(50), default='received', index=True)
-    weight_kg = Column(Float)
-    length_cm = Column(Float)
-    width_cm = Column(Float)
-    height_cm = Column(Float)
+    # Dimensions
+    weight_kg = Column(Numeric(10, 3))
+    length_cm = Column(Numeric(8, 2))
+    width_cm = Column(Numeric(8, 2))
+    height_cm = Column(Numeric(8, 2))
+    dimension_mismatch = Column(Boolean, default=False)
+    weight_mismatch = Column(Boolean, default=False)
     
-    # Damage flags
+    # Location
+    current_location = Column(String(200))
+    
+    # Status
+    status = Column(String(50), default='received', index=True)
+    
+    # Damage
     has_damage = Column(Boolean, default=False, index=True)
-    damage_severity = Column(String(20))  # minor, moderate, severe
-    damage_description = Column(Text)
+    damage_severity = Column(String(20))  # minor, moderate, severe, total_loss
+    damage_value_estimate = Column(Numeric(12, 2))
     
     # Auto-resolution
     auto_resolved = Column(Boolean, default=False)
-    resolution_action = Column(String(50))  # approved, quarantine, rejected
+    auto_resolution_reason = Column(Text)
     
-    # Metadata
-    metadata_json = Column(JSONB)
-    notes = Column(Text)
+    # Tags
+    tags = Column(ARRAY(Text))
     
     # Timestamps
-    received_at = Column(DateTime, default=datetime.utcnow)
-    inspected_at = Column(DateTime)
-    completed_at = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    received_at = Column(TIMESTAMP(timezone=True), default=datetime.utcnow)
+    inspected_at = Column(TIMESTAMP(timezone=True))
+    stored_at = Column(TIMESTAMP(timezone=True))
+    shipped_at = Column(TIMESTAMP(timezone=True))
+    created_at = Column(TIMESTAMP(timezone=True), default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    inspections = relationship("Inspection", back_populates="parcel")
+    inspections = relationship("Inspection", back_populates="parcel", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Parcel {self.tracking_number}>"

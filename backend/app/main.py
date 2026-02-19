@@ -30,10 +30,10 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     """Run on application startup"""
-    logger.info("🚀 Parcel Inspection System API starting up...")
-    logger.info(f"📍 Environment: {'Development' if settings.API_DEBUG else 'Production'}")
-    logger.info(f"🗄️  Database: Connected to PostgreSQL")
-    logger.info(f"💾 Redis: Connected at {settings.REDIS_URL}")
+    logger.info(" Parcel Inspection System API starting up...")
+    logger.info(f" Environment: {'Development' if settings.API_DEBUG else 'Production'}")
+    logger.info(f"  Database: Connected to PostgreSQL")
+    logger.info(f" Redis: Connected at {settings.REDIS_URL}")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -111,6 +111,10 @@ app.include_router(ocr_router, prefix="/api/v1/ocr", tags=["ocr"])
 from app.api.v1.claims import router as claims_router
 app.include_router(claims_router, prefix="/api/v1/claims", tags=["claims"])
 
+# Parcels Router
+from app.api.v1.parcels import router as parcels_router
+app.include_router(parcels_router, prefix="/api/v1/parcels", tags=["parcels"])
+
 # ========================================
 # MAIN - For direct execution
 # ========================================
@@ -123,3 +127,4 @@ if __name__ == "__main__":
         port=settings.API_PORT,
         reload=settings.API_RELOAD
     )
+
